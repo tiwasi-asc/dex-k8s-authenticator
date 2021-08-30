@@ -53,8 +53,8 @@
       </button>
 
       <pre><code>mkdir -Force -p ${HOME}/.kube/certs/{{ .ClusterName }}; @"
-        {{ .IDPCaPem }}
-"@ > ${HOME}/.kube/certs/{{ .ClusterName }}/idp-ca.crt</code></pre>
+{{ .IDPCaPem }}
+"@ | Out-File ${HOME}/.kube/certs/{{ .ClusterName }}/idp-ca.crt -Encoding ASCII</code></pre>
     </div>
   {{ end }}
 
@@ -83,8 +83,8 @@
         <img class="clippy" width="13" src="{{ .Web_Path_Prefix }}static/clippy.svg" alt=""/>
       </button>
       <pre><code>mkdir -Force -p ${HOME}/.kube/certs/{{ .ClusterName }}; @"
-        {{ .K8sCaPem }}
-"@ > ${HOME}/.kube/certs/{{ .ClusterName }}/k8s-ca.crt</code></pre>
+{{ .K8sCaPem }}
+"@ | Out-File ${HOME}/.kube/certs/{{ .ClusterName }}/k8s-ca.crt -Encoding ASCII</code></pre>
     </div>
   {{ end }}
 
