@@ -1,4 +1,16 @@
 {{ define "windows-tab-content" }}
+    <h3>Use PowerShell</h3>
+    <div>
+      Commands must be run within powershell. You can start it from any terminal using
+
+      <div class="command">
+        <button class="btn" style="float: right" data-clipboard-snippet="">
+          <img class="clippy" width="13" src="{{ .Web_Path_Prefix }}static/clippy.svg" alt=""/>
+        </button>
+        <pre><code>powershell</code></pre>
+      </div>
+    </div>
+
 <h3>Install and Set Up kubectl</h3>
     <div>
     See
@@ -40,9 +52,9 @@
         <img class="clippy" width="13" src="{{ .Web_Path_Prefix }}static/clippy.svg" alt=""/>
       </button>
 
-      <pre><code>mkdir -p ${HOME}/.kube/certs/{{ .ClusterName }}/ &amp;&amp; cat &lt;&lt; EOF &gt; ${HOME}/.kube/certs/{{ .ClusterName }}/idp-ca.crt
-{{ .IDPCaPem}}
-EOF</code></pre>
+      <pre><code>mkdir -Force -p ${HOME}/.kube/certs/{{ .ClusterName }}; @"
+        {{ .IDPCaPem }}
+"@ > ${HOME}/.kube/certs/{{ .ClusterName }}/idp-ca.crt</code></pre>
     </div>
   {{ end }}
 
@@ -70,24 +82,22 @@ EOF</code></pre>
       <button class="btn" style="float:right" data-clipboard-snippet="">
         <img class="clippy" width="13" src="{{ .Web_Path_Prefix }}static/clippy.svg" alt=""/>
       </button>
-      <pre><code>mkdir -p ${HOME}/.kube/certs/{{ .ClusterName }}/ &amp;&amp; cat &lt;&lt; EOF &gt; ${HOME}/.kube/certs/{{ .ClusterName }}/k8s-ca.crt
-{{ .K8sCaPem }}
-EOF</code></pre>
+      <pre><code>mkdir -Force -p ${HOME}/.kube/certs/{{ .ClusterName }}; @"
+        {{ .K8sCaPem }}
+"@ > ${HOME}/.kube/certs/{{ .ClusterName }}/k8s-ca.crt</code></pre>
     </div>
   {{ end }}
 
   <h3>Run configuration commands</h3>
 
-  <p>These commands will update <tt>~/.kube/config</tt></p>
+  <p>These commands will update <tt>${HOME}/.kube/config</tt></p>
 
   <div class="command">
 
     <button class="btn" style="float:right" data-clipboard-snippet="">
       <img class="clippy" width="13" src="{{ .Web_Path_Prefix }}static/clippy.svg" alt="">
     </button>
-  <pre><code>kubectl config set-cluster {{ .ClusterName }}
-    {{- if or .K8sCaPem .K8sCaURI }} --certificate-authority=${HOME}/.kube/certs/{{ .ClusterName}}/k8s-ca.crt
-    {{- end }} --server={{ .K8sMasterURI }}</code></pre>
+  <pre><code>kubectl config set-cluster {{ .ClusterName }} --embed-certs --certificate-authority=${HOME}/.kube/certs/{{ .ClusterName}}/k8s-ca.crt --server={{ .K8sMasterURI }}</code></pre>
   </div>
 
   <div class="command">
@@ -96,7 +106,7 @@ EOF</code></pre>
       <img class="clippy" width="13" src="{{ .Web_Path_Prefix }}static/clippy.svg" alt=""/>
     </button>
   <pre><code>kubectl config set-credentials {{ .Username }}-{{ .ClusterName }} --auth-provider=oidc --auth-provider-arg=idp-issuer-url={{ .Issuer }} --auth-provider-arg=client-id={{ .ClientID }} --auth-provider-arg=client-secret={{ .ClientSecret }} --auth-provider-arg=refresh-token={{ .RefreshToken }} --auth-provider-arg=id-token={{ .IDToken }}
-  {{- if or (.IDPCaURI) (.IDPCaPem) }} --auth-provider-arg=idp-certificate-authority=${HOME}/.kube/certs/{{ .ClusterName }}/idp-ca.crt
+   {{- if or (.IDPCaURI) (.IDPCaPem) }} --embed-certs --auth-provider-arg=idp-certificate-authority=${HOME}/.kube/certs/{{ .ClusterName }}/idp-ca.crt
   {{- end }}</code></pre>
   </div>
   <div class="command">
